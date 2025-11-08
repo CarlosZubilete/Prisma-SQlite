@@ -1,7 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { db } from "../config/db.js";
-import { error } from "console";
-import type { User } from "../generated/prisma/index.js";
+import { type User } from "../generated/prisma/client.js";
 
 const userRouter: Router = Router();
 
@@ -32,7 +31,7 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
 
     const user_id: string = id;
 
-    const user = await db.user.findUnique({
+    const user: User | null = await db.user.findUnique({
       where: {
         id: parseInt(user_id),
       },
@@ -48,13 +47,13 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
 userRouter.patch("/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-
-    const { name, email } = req.body;
     if (typeof id == "undefined") return;
+
+    const { name, email } = req.user;
 
     const user_id: string = id;
 
-    const user = await db.user.findUnique({
+    const user: User | null = await db.user.findUnique({
       where: {
         id: parseInt(user_id),
       },
