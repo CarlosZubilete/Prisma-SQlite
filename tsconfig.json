@@ -41,6 +41,8 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
+    "moduleResolution": "node",
+
     "skipLibCheck": true,
     "typeRoots": ["./src/types", "./node_modules/@types"]
   },

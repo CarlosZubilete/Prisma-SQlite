@@ -1,8 +1,11 @@
 import { type Request, type Response } from "express";
 import { db } from "../config/db";
 import { type User } from "../generated/prisma/index";
+import { UserSchema, UpdateUserSchema } from "../schema/user.schema";
 
 export const create = async (req: Request, res: Response) => {
+  UserSchema.parse(req.body);
+
   const { name, email } = req.body;
   const user = await db.user.create({
     data: {
@@ -16,12 +19,13 @@ export const create = async (req: Request, res: Response) => {
 export const user = async (req: Request, res: Response) => {
   const { id } = req.params;
   if (typeof id == "undefined") return;
-  const user_id: string = id;
+  const user_id: number = parseInt(id);
   const user = await db.user.findUnique({
     where: {
-      id: parseInt(user_id),
+      id: user_id,
     },
   });
+
   res.json(user);
 };
 
@@ -32,11 +36,8 @@ export const list = async (req: Request, res: Response) => {
 
 export const update = async (req: Request, res: Response) => {
   const { id } = req.params;
-  // console.log("Hi i am at update| id = " + id);
-
+  // if (!id) return res.status(400).json({ message: "MISSING ID" });
   if (typeof id == "undefined") return;
-
-  const { name, email } = req.body;
 
   const user_id: number = parseInt(id);
 
@@ -47,13 +48,18 @@ export const update = async (req: Request, res: Response) => {
   });
 
   if (!user) return res.status(400).json({ message: "USER NOT FOUND" });
+
+  UpdateUserSchema.parse(req.body);
+
+  const { name, email } = req.body;
+
   const userUpdate = await db.user.update({
     where: {
       id: user_id,
     },
     data: {
-      name: name ?? user.name,
-      email: email ?? user.email,
+      name,
+      email,
     },
   });
 
